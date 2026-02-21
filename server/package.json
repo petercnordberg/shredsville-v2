@@ -1,0 +1,20 @@
+{
+  "name": "shredsville-server",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "cors": "^2.8.5",
+    "drizzle-orm": "^0.38.4",
+    "express": "^4.21.2",
+    "openai": "^4.82.0",
+    "postgres": "^3.4.5"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.4",
+    "drizzle-kit": "^0.30.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

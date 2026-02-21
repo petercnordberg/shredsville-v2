@@ -1,0 +1,19 @@
+{
+  "name": "shredsville-v2",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:server": "cd server && npx tsx watch src/index.ts",
+    "dev:client": "cd client && npx vite",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "build:client": "cd client && npx vite build",
+    "build:server": "cd server && npx tsc",
+    "build": "npm run build:client && npm run build:server",
+    "start": "NODE_ENV=production node dist/index.js",
+    "db:push": "cd server && npx drizzle-kit push",
+    "db:generate": "cd server && npx drizzle-kit generate"
+  },
+  "dependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
