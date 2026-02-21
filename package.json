@@ -3,17 +3,39 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev:server": "cd server && npx tsx watch src/index.ts",
-    "dev:client": "cd client && npx vite",
+    "dev:server": "tsx watch server/src/index.ts",
+    "dev:client": "vite --config client/vite.config.ts",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-    "build:client": "cd client && npx vite build",
-    "build:server": "cd server && npx tsc",
+    "build:client": "vite build --config client/vite.config.ts",
+    "build:server": "tsc -p server/tsconfig.json",
     "build": "npm run build:client && npm run build:server",
     "start": "NODE_ENV=production node dist/index.js",
-    "db:push": "cd server && npx drizzle-kit push",
-    "db:generate": "cd server && npx drizzle-kit generate"
+    "db:push": "drizzle-kit push --config server/drizzle.config.ts",
+    "db:generate": "drizzle-kit generate --config server/drizzle.config.ts"
   },
   "dependencies": {
-    "concurrently": "^9.1.2"
+    "cors": "^2.8.5",
+    "drizzle-orm": "^0.38.4",
+    "express": "^4.21.2",
+    "openai": "^4.82.0",
+    "postgres": "^3.4.5",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.4",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.2",
+    "drizzle-kit": "^0.30.4",
+    "postcss": "^8.5.1",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0"
   }
 }
