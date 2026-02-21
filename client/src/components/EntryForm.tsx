@@ -190,8 +190,73 @@ export default function EntryForm({ presets, onAdded }: Props) {
       )}
       <ManualEntryForm onAdded={onAdded} />
       <QuickButtons onAdded={onAdded} />
+      <BerryBowl onAdded={onAdded} />
       <AiEntryForm onAdded={onAdded} />
     </>
+  );
+}
+
+const BERRY_PER_100G = { calories: 46, protein: 1, fiber: 4 };
+
+function BerryBowl({ onAdded }: { onAdded: () => void }) {
+  const [grams, setGrams] = useState("");
+  const [error, setError] = useState("");
+
+  const g = parseFloat(grams) || 0;
+  const cal = Math.round((g / 100) * BERRY_PER_100G.calories);
+  const pro = Math.round((g / 100) * BERRY_PER_100G.protein);
+  const fib = Math.round((g / 100) * BERRY_PER_100G.fiber);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (g <= 0) return;
+
+    try {
+      await api.addEntry({
+        description: `Mixed berries - ${g}g`,
+        calories: cal,
+        protein: pro,
+        fiber: fib,
+        type: "preset",
+      });
+      setGrams("");
+      setError("");
+      onAdded();
+    } catch {
+      setError("Failed to add berry bowl");
+    }
+  };
+
+  return (
+    <div className="bg-purple-50 rounded-xl shadow-sm border border-purple-200 p-4 mb-4">
+      <h2 className="text-sm font-semibold text-purple-600 uppercase tracking-wide mb-3">
+        Berry Bowl
+      </h2>
+      <form onSubmit={handleSubmit} className="flex gap-2 items-end">
+        <div className="flex-1">
+          <input
+            type="number"
+            value={grams}
+            onChange={(e) => setGrams(e.target.value)}
+            placeholder="Grams of mixed berries"
+            className="w-full border border-purple-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={g <= 0}
+          className="bg-purple-600 text-white rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50 hover:bg-purple-700 transition-colors shrink-0"
+        >
+          Add
+        </button>
+      </form>
+      {g > 0 && (
+        <p className="text-xs text-purple-500 mt-2">
+          {cal} cal &middot; {pro}g protein &middot; {fib}g fiber
+        </p>
+      )}
+      {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+    </div>
   );
 }
 
