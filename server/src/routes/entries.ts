@@ -5,26 +5,36 @@ import { eq, and, gte, lt } from "drizzle-orm";
 
 const router = Router();
 
-function getTodayRange() {
-  // Get current time in America/New_York, then compute midnight-to-midnight range
-  const eastern = new Date(
+function getDayRange(dateStr?: string) {
+  // Get current time in America/New_York
+  const nowET = new Date(
     new Date().toLocaleString("en-US", { timeZone: "America/New_York" })
   );
-  const startET = new Date(eastern.getFullYear(), eastern.getMonth(), eastern.getDate());
+
+  let startET: Date;
+  if (dateStr) {
+    // dateStr is "YYYY-MM-DD" — parse as Eastern date
+    const [y, m, d] = dateStr.split("-").map(Number);
+    startET = new Date(y, m - 1, d);
+  } else {
+    startET = new Date(nowET.getFullYear(), nowET.getMonth(), nowET.getDate());
+  }
+
   const endET = new Date(startET);
   endET.setDate(endET.getDate() + 1);
 
   // Convert back to UTC for database comparison
-  const offsetMs = eastern.getTime() - new Date().getTime();
+  const offsetMs = nowET.getTime() - new Date().getTime();
   const start = new Date(startET.getTime() - offsetMs);
   const end = new Date(endET.getTime() - offsetMs);
   return { start, end };
 }
 
-// Get today's entries
-router.get("/", async (_req, res) => {
+// Get entries for a given day (defaults to today ET)
+router.get("/", async (req, res) => {
   try {
-    const { start, end } = getTodayRange();
+    const dateStr = req.query.date as string | undefined;
+    const { start, end } = getDayRange(dateStr);
     const entries = await getDb()
       .select()
       .from(nutritionEntries)

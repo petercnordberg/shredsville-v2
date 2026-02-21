@@ -2,27 +2,27 @@ import api, { NutritionEntry } from "../lib/api";
 
 interface Props {
   entries: NutritionEntry[];
-  onDeleted: () => void;
+  onDeleted?: () => void;
 }
 
 export default function EntryList({ entries, onDeleted }: Props) {
   if (entries.length === 0) {
     return (
       <div className="text-center text-gray-400 text-sm py-8">
-        No entries yet today. Add something above!
+        No entries for this day.
       </div>
     );
   }
 
   const handleDelete = async (id: number) => {
     await api.deleteEntry(id);
-    onDeleted();
+    onDeleted?.();
   };
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-4 pt-4 pb-2">
-        Today's Entries
+        Entries
       </h2>
       <ul className="divide-y divide-gray-100">
         {entries.map((entry) => (
@@ -42,13 +42,15 @@ export default function EntryList({ entries, onDeleted }: Props) {
                 {Math.round(entry.fiber)}g fiber
               </p>
             </div>
-            <button
-              onClick={() => handleDelete(entry.id)}
-              className="text-gray-300 hover:text-red-500 transition-colors text-sm shrink-0"
-              title="Delete"
-            >
-              &times;
-            </button>
+            {onDeleted && (
+              <button
+                onClick={() => handleDelete(entry.id)}
+                className="text-gray-300 hover:text-red-500 transition-colors text-sm shrink-0"
+                title="Delete"
+              >
+                &times;
+              </button>
+            )}
           </li>
         ))}
       </ul>

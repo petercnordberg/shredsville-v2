@@ -3,9 +3,10 @@ import { UserSettings } from "../lib/api";
 interface Props {
   totals: { calories: number; protein: number; fiber: number };
   settings: UserSettings;
+  label: string;
 }
 
-export default function TodayTotals({ totals, settings }: Props) {
+export default function TodayTotals({ totals, settings, label }: Props) {
   const remaining = {
     calories: settings.dailyCalorieTarget - totals.calories,
     protein: settings.dailyProteinTarget - totals.protein,
@@ -18,7 +19,7 @@ export default function TodayTotals({ totals, settings }: Props) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
       <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
-        Today
+        {label}
       </h2>
       <div className="space-y-3">
         <MacroRow

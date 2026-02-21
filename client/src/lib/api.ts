@@ -30,8 +30,9 @@ export interface ParsedFood {
 }
 
 const api = {
-  async getEntries(): Promise<NutritionEntry[]> {
-    const res = await fetch("/api/entries");
+  async getEntries(date?: string): Promise<NutritionEntry[]> {
+    const url = date ? `/api/entries?date=${date}` : "/api/entries";
+    const res = await fetch(url);
     return res.json();
   },
 
