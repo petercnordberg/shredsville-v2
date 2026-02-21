@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { getDb } from "../db";
 import { nutritionEntries } from "../db/schema";
-import { eq, and, gte, lt } from "drizzle-orm";
+import { eq, and, gte, lt, desc } from "drizzle-orm";
 
 const router = Router();
 
@@ -44,7 +44,7 @@ router.get("/", async (req, res) => {
           lt(nutritionEntries.createdAt, end)
         )
       )
-      .orderBy(nutritionEntries.createdAt);
+      .orderBy(desc(nutritionEntries.createdAt));
     res.json(entries);
   } catch (error) {
     console.error("Error fetching entries:", error);

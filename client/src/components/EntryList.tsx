@@ -33,7 +33,11 @@ export default function EntryList({ entries, onDeleted }: Props) {
                   {entry.description}
                 </p>
                 <span className="text-xs text-gray-400 shrink-0">
-                  {entry.type === "ai" ? "AI" : entry.type === "preset" ? "Preset" : "Manual"}
+                  {new Date(entry.createdAt).toLocaleTimeString("en-US", {
+                    hour: "numeric",
+                    minute: "2-digit",
+                    timeZone: "America/New_York",
+                  })}
                 </span>
               </div>
               <p className="text-xs text-gray-500 mt-0.5">
