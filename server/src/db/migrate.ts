@@ -43,8 +43,7 @@ export async function runMigrations() {
 
     console.log("Database migrations complete");
   } catch (error) {
-    console.error("Migration failed:", error);
-    throw error;
+    console.error("Migration failed (will retry on next request):", error);
   } finally {
     await sql.end();
   }
