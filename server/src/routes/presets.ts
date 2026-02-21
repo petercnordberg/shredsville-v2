@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db } from "../db";
+import { getDb } from "../db";
 import { presetFoods } from "../db/schema";
 import { eq } from "drizzle-orm";
 
@@ -8,7 +8,7 @@ const router = Router();
 // Get all presets
 router.get("/", async (_req, res) => {
   try {
-    const presets = await db
+    const presets = await getDb()
       .select()
       .from(presetFoods)
       .orderBy(presetFoods.name);
@@ -23,7 +23,7 @@ router.get("/", async (_req, res) => {
 router.post("/", async (req, res) => {
   try {
     const { name, calories, protein, fiber } = req.body;
-    const [preset] = await db
+    const [preset] = await getDb()
       .insert(presetFoods)
       .values({ name, calories, protein, fiber })
       .returning();
@@ -38,7 +38,7 @@ router.post("/", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    await db.delete(presetFoods).where(eq(presetFoods.id, id));
+    await getDb().delete(presetFoods).where(eq(presetFoods.id, id));
     res.json({ success: true });
   } catch (error) {
     console.error("Error deleting preset:", error);

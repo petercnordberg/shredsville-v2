@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db } from "../db";
+import { getDb } from "../db";
 import { nutritionEntries } from "../db/schema";
 import { eq, and, gte, lt } from "drizzle-orm";
 
@@ -17,7 +17,7 @@ function getTodayRange() {
 router.get("/", async (_req, res) => {
   try {
     const { start, end } = getTodayRange();
-    const entries = await db
+    const entries = await getDb()
       .select()
       .from(nutritionEntries)
       .where(
@@ -38,7 +38,7 @@ router.get("/", async (_req, res) => {
 router.post("/", async (req, res) => {
   try {
     const { description, calories, protein, fiber, type } = req.body;
-    const [entry] = await db
+    const [entry] = await getDb()
       .insert(nutritionEntries)
       .values({ description, calories, protein, fiber, type: type || "manual" })
       .returning();
@@ -53,7 +53,7 @@ router.post("/", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    await db.delete(nutritionEntries).where(eq(nutritionEntries.id, id));
+    await getDb().delete(nutritionEntries).where(eq(nutritionEntries.id, id));
     res.json({ success: true });
   } catch (error) {
     console.error("Error deleting entry:", error);

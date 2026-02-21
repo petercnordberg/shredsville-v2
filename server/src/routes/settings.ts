@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db } from "../db";
+import { getDb } from "../db";
 import { userSettings } from "../db/schema";
 import { eq } from "drizzle-orm";
 
@@ -8,9 +8,9 @@ const router = Router();
 // Get settings (create defaults if none exist)
 router.get("/", async (_req, res) => {
   try {
-    const rows = await db.select().from(userSettings);
+    const rows = await getDb().select().from(userSettings);
     if (rows.length === 0) {
-      const [settings] = await db
+      const [settings] = await getDb()
         .insert(userSettings)
         .values({})
         .returning();
@@ -28,15 +28,15 @@ router.put("/", async (req, res) => {
   try {
     const { dailyCalorieTarget, dailyProteinTarget, dailyFiberTarget } =
       req.body;
-    const rows = await db.select().from(userSettings);
+    const rows = await getDb().select().from(userSettings);
     if (rows.length === 0) {
-      const [settings] = await db
+      const [settings] = await getDb()
         .insert(userSettings)
         .values({ dailyCalorieTarget, dailyProteinTarget, dailyFiberTarget })
         .returning();
       return res.json(settings);
     }
-    const [settings] = await db
+    const [settings] = await getDb()
       .update(userSettings)
       .set({ dailyCalorieTarget, dailyProteinTarget, dailyFiberTarget })
       .where(eq(userSettings.id, rows[0].id))

@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import path from "path";
+import { runMigrations } from "./db/migrate";
 import entriesRouter from "./routes/entries";
 import presetsRouter from "./routes/presets";
 import settingsRouter from "./routes/settings";
@@ -27,6 +28,14 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on 0.0.0.0:${PORT}`);
+async function start() {
+  await runMigrations();
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running on 0.0.0.0:${PORT}`);
+  });
+}
+
+start().catch((err) => {
+  console.error("Failed to start server:", err);
+  process.exit(1);
 });
