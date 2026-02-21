@@ -6,10 +6,18 @@ import { eq, and, gte, lt } from "drizzle-orm";
 const router = Router();
 
 function getTodayRange() {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const end = new Date(start);
-  end.setDate(end.getDate() + 1);
+  // Get current time in America/New_York, then compute midnight-to-midnight range
+  const eastern = new Date(
+    new Date().toLocaleString("en-US", { timeZone: "America/New_York" })
+  );
+  const startET = new Date(eastern.getFullYear(), eastern.getMonth(), eastern.getDate());
+  const endET = new Date(startET);
+  endET.setDate(endET.getDate() + 1);
+
+  // Convert back to UTC for database comparison
+  const offsetMs = eastern.getTime() - new Date().getTime();
+  const start = new Date(startET.getTime() - offsetMs);
+  const end = new Date(endET.getTime() - offsetMs);
   return { start, end };
 }
 
