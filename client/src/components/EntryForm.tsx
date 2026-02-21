@@ -92,7 +92,7 @@ function ManualEntryForm({ onAdded }: { onAdded: () => void }) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4">
       <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
         Manual Entry
       </h2>
@@ -188,8 +188,43 @@ export default function EntryForm({ presets, onAdded }: Props) {
           {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
         </div>
       )}
-      <AiEntryForm onAdded={onAdded} />
       <ManualEntryForm onAdded={onAdded} />
+      <QuickButtons onAdded={onAdded} />
+      <AiEntryForm onAdded={onAdded} />
     </>
+  );
+}
+
+const QUICK_ITEMS = [
+  { name: "Protein Powder", calories: 165, protein: 30, fiber: 0 },
+  { name: "Cottage Cheese", calories: 175, protein: 30, fiber: 0 },
+  { name: "Fiber Supplement", calories: 0, protein: 0, fiber: 7 },
+  { name: "Bone Broth", calories: 100, protein: 20, fiber: 0 },
+];
+
+function QuickButtons({ onAdded }: { onAdded: () => void }) {
+  const handleClick = async (item: (typeof QUICK_ITEMS)[number]) => {
+    await api.addEntry({
+      description: item.name,
+      calories: item.calories,
+      protein: item.protein,
+      fiber: item.fiber,
+      type: "preset",
+    });
+    onAdded();
+  };
+
+  return (
+    <div className="grid grid-cols-4 gap-2 mb-4">
+      {QUICK_ITEMS.map((item) => (
+        <button
+          key={item.name}
+          onClick={() => handleClick(item)}
+          className="bg-white border border-gray-200 rounded-lg px-2 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm"
+        >
+          {item.name}
+        </button>
+      ))}
+    </div>
   );
 }
