@@ -10,7 +10,6 @@
     "build:server": "tsc -p server/tsconfig.json",
     "build": "npm run build:client && npm run build:server",
     "start": "NODE_ENV=production node dist/index.js",
-    "db:push": "drizzle-kit push --config server/drizzle.config.ts",
     "db:generate": "drizzle-kit generate --config server/drizzle.config.ts"
   },
   "dependencies": {

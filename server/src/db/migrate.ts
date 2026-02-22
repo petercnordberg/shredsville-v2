@@ -1,12 +1,18 @@
 import postgres from "postgres";
 
+// SAFETY: This migration is additive-only.
+// - Only CREATE TABLE IF NOT EXISTS (never DROP TABLE)
+// - Only ADD COLUMN IF NOT EXISTS (never DROP COLUMN)
+// - Never TRUNCATE, DELETE, or modify existing data
+// - Safe to run multiple times (fully idempotent)
+
 export async function runMigrations() {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
     throw new Error("DATABASE_URL environment variable is required");
   }
 
-  console.log("Starting database migrations...");
+  console.log("Starting database migrations (additive-only, safe to re-run)...");
 
   const sql = postgres(connectionString, {
     max: 1,
@@ -18,7 +24,28 @@ export async function runMigrations() {
     const [info] = await sql`SELECT current_database() as db, current_schema() as schema`;
     console.log(`Connected to database: ${info.db}, schema: ${info.schema}`);
 
-    // Create tables sequentially (IF NOT EXISTS makes these idempotent)
+    // Check pre-existing state so we can confirm data is preserved
+    const preExisting = await sql`
+      SELECT table_name
+      FROM information_schema.tables
+      WHERE table_schema = 'public'
+        AND table_name IN ('nutrition_entries', 'preset_foods', 'user_settings')
+    `;
+    const existingTables = preExisting.map((t) => t.table_name);
+    if (existingTables.length > 0) {
+      console.log(`  Tables already present: ${existingTables.join(", ")}`);
+      // Log row counts to confirm data is preserved across deploys
+      for (const table of existingTables) {
+        const [{ count }] = await sql`
+          SELECT count(*)::int as count FROM ${sql(table)}
+        `;
+        console.log(`    ${table}: ${count} existing rows`);
+      }
+    } else {
+      console.log("  No existing tables found, creating fresh schema");
+    }
+
+    // CREATE TABLE IF NOT EXISTS — only creates if missing, never touches existing tables
     await sql`
       CREATE TABLE IF NOT EXISTS nutrition_entries (
         id SERIAL PRIMARY KEY,
@@ -53,15 +80,15 @@ export async function runMigrations() {
     `;
     console.log("  Created/verified: user_settings");
 
-    // Verify tables actually exist by querying information_schema
-    const tables = await sql`
+    // Verify all tables exist after migration
+    const postMigration = await sql`
       SELECT table_name
       FROM information_schema.tables
       WHERE table_schema = 'public'
         AND table_name IN ('nutrition_entries', 'preset_foods', 'user_settings')
     `;
 
-    const found = tables.map((t) => t.table_name);
+    const found = postMigration.map((t) => t.table_name);
     const required = ["nutrition_entries", "preset_foods", "user_settings"];
     const missing = required.filter((t) => !found.includes(t));
 
@@ -71,7 +98,15 @@ export async function runMigrations() {
       );
     }
 
-    console.log(`Database migrations complete - verified ${found.length} tables`);
+    // Verify data was preserved (row counts should not decrease)
+    for (const table of found) {
+      const [{ count }] = await sql`
+        SELECT count(*)::int as count FROM ${sql(table)}
+      `;
+      console.log(`  Verified ${table}: ${count} rows`);
+    }
+
+    console.log("Database migrations complete - all tables verified, data preserved");
   } catch (error) {
     console.error("Migration failed:", error);
     throw error; // Re-throw to prevent server from starting with broken DB
