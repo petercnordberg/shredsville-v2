@@ -29,7 +29,13 @@ if (process.env.NODE_ENV === "production") {
 }
 
 async function start() {
-  await runMigrations();
+  try {
+    await runMigrations();
+  } catch (error) {
+    console.error("FATAL: Database migration failed, cannot start server");
+    process.exit(1);
+  }
+
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on 0.0.0.0:${PORT}`);
   });
