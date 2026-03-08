@@ -8,6 +8,7 @@ import EntryForm from "./components/EntryForm";
 import TodayTotals from "./components/TodayTotals";
 import EntryList from "./components/EntryList";
 import Settings from "./components/Settings";
+import InsightsPage from "./components/InsightsPage";
 
 function getEasternToday(): string {
   return new Date().toLocaleDateString("en-CA", {
@@ -47,6 +48,7 @@ export default function App() {
   const [presets, setPresets] = useState<PresetFood[]>([]);
   const [settings, setSettings] = useState<UserSettings | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [showInsights, setShowInsights] = useState(false);
   const [selectedDate, setSelectedDate] = useState(getEasternToday);
 
   const isToday = selectedDate === getEasternToday();
@@ -75,6 +77,10 @@ export default function App() {
     { calories: 0, protein: 0, fiber: 0 }
   );
 
+  if (showInsights) {
+    return <InsightsPage onBack={() => setShowInsights(false)} />;
+  }
+
   if (showSettings) {
     return (
       <div className="max-w-lg mx-auto px-4 py-6">
@@ -94,12 +100,20 @@ export default function App() {
     <div className="max-w-lg mx-auto px-4 py-6">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Shredsville</h1>
-        <button
-          onClick={() => setShowSettings(true)}
-          className="text-sm text-gray-500 hover:text-gray-800 transition-colors"
-        >
-          Settings
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowInsights(true)}
+            className="text-sm text-gray-500 hover:text-gray-800 transition-colors"
+          >
+            Insights
+          </button>
+          <button
+            onClick={() => setShowSettings(true)}
+            className="text-sm text-gray-500 hover:text-gray-800 transition-colors"
+          >
+            Settings
+          </button>
+        </div>
       </div>
 
       <div className="flex items-center justify-between mb-4">

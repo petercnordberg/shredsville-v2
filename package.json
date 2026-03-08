@@ -19,7 +19,8 @@
     "openai": "^4.82.0",
     "postgres": "^3.4.5",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "recharts": "^3.8.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

@@ -29,7 +29,7 @@ export async function runMigrations() {
       SELECT table_name
       FROM information_schema.tables
       WHERE table_schema = 'public'
-        AND table_name IN ('nutrition_entries', 'preset_foods', 'user_settings')
+        AND table_name IN ('nutrition_entries', 'preset_foods', 'user_settings', 'weight_entries', 'weekly_goals')
     `;
     const existingTables = preExisting.map((t) => t.table_name);
     if (existingTables.length > 0) {
@@ -80,16 +80,40 @@ export async function runMigrations() {
     `;
     console.log("  Created/verified: user_settings");
 
+    await sql`
+      CREATE TABLE IF NOT EXISTS weight_entries (
+        id SERIAL PRIMARY KEY,
+        date TEXT NOT NULL,
+        weight REAL NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      )
+    `;
+    console.log("  Created/verified: weight_entries");
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS weekly_goals (
+        id SERIAL PRIMARY KEY,
+        week_start_date TEXT NOT NULL,
+        calorie_target REAL NOT NULL,
+        protein_target REAL NOT NULL,
+        fiber_target REAL NOT NULL,
+        goal_type TEXT NOT NULL DEFAULT 'maintenance',
+        target_deficit REAL,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      )
+    `;
+    console.log("  Created/verified: weekly_goals");
+
     // Verify all tables exist after migration
     const postMigration = await sql`
       SELECT table_name
       FROM information_schema.tables
       WHERE table_schema = 'public'
-        AND table_name IN ('nutrition_entries', 'preset_foods', 'user_settings')
+        AND table_name IN ('nutrition_entries', 'preset_foods', 'user_settings', 'weight_entries', 'weekly_goals')
     `;
 
     const found = postMigration.map((t) => t.table_name);
-    const required = ["nutrition_entries", "preset_foods", "user_settings"];
+    const required = ["nutrition_entries", "preset_foods", "user_settings", "weight_entries", "weekly_goals"];
     const missing = required.filter((t) => !found.includes(t));
 
     if (missing.length > 0) {

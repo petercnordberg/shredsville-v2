@@ -67,6 +67,39 @@ router.post("/", async (req, res) => {
   }
 });
 
+// Update entry
+router.put("/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const updates: Record<string, unknown> = {};
+    if (req.body.description !== undefined)
+      updates.description = req.body.description;
+    if (req.body.calories !== undefined) updates.calories = req.body.calories;
+    if (req.body.protein !== undefined) updates.protein = req.body.protein;
+    if (req.body.fiber !== undefined) updates.fiber = req.body.fiber;
+    if (req.body.date !== undefined) {
+      // Reassign to a different date - set createdAt to noon of that date in ET
+      const [y, m, d] = req.body.date.split("-").map(Number);
+      const noonET = new Date(y, m - 1, d, 12, 0, 0);
+      const nowET = new Date(
+        new Date().toLocaleString("en-US", { timeZone: "America/New_York" })
+      );
+      const offsetMs = nowET.getTime() - new Date().getTime();
+      updates.createdAt = new Date(noonET.getTime() - offsetMs);
+    }
+
+    const [entry] = await getDb()
+      .update(nutritionEntries)
+      .set(updates)
+      .where(eq(nutritionEntries.id, id))
+      .returning();
+    res.json(entry);
+  } catch (error) {
+    console.error("Error updating entry:", error);
+    res.status(500).json({ error: "Failed to update entry" });
+  }
+});
+
 // Delete entry
 router.delete("/:id", async (req, res) => {
   try {

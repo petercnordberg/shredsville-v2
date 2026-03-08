@@ -6,6 +6,9 @@ import entriesRouter from "./routes/entries";
 import presetsRouter from "./routes/presets";
 import settingsRouter from "./routes/settings";
 import parseRouter from "./routes/parse";
+import weightRouter from "./routes/weight";
+import goalsRouter from "./routes/goals";
+import weeklySummariesRouter from "./routes/weekly-summaries";
 
 const app = express();
 const PORT = parseInt(process.env.PORT || "3000", 10);
@@ -18,6 +21,9 @@ app.use("/api/entries", entriesRouter);
 app.use("/api/presets", presetsRouter);
 app.use("/api/settings", settingsRouter);
 app.use("/api/parse", parseRouter);
+app.use("/api/weight", weightRouter);
+app.use("/api/goals", goalsRouter);
+app.use("/api/weekly-summaries", weeklySummariesRouter);
 
 // Serve frontend in production
 if (process.env.NODE_ENV === "production") {
